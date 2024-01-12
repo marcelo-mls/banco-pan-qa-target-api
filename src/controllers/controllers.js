@@ -1,16 +1,5 @@
 const services = require('../services/services');
-
-const spaces = {
-  dashResumo: [
-    { name: 'dashResumo1Prod', id: 221694 },
-    { name: 'dashResumo2Prod', id: 221733 },
-  ],
-  homeResumo: [
-    { name: 'homeResumo1ProdNboBackup', id: 221114 },
-    { name: 'homeResumo2Prod', id: 221695 },
-    { name: 'homeResumo3Prod', id: 210119 },
-  ]
-};
+const { filterProductionActivitiesBySpace } = require('../utils/helperFunctions');
 
 // RETORNA LISTA DE TODAS ATIVIDADES
 async function getActivities(req, res) {
@@ -59,8 +48,14 @@ async function getOffer(req, res) {
 async function getAllSpaceContent(req, res) {
   try {
     const { space } = req.params;
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
 
-    const activitiesIds = spaces[space].map((activity) => activity.id);
+    const allActivities = await services.fetchActivitiesAPI(token);
+
+    const activitiesIds = allActivities.activities
+      .filter((activity) => filterProductionActivitiesBySpace(activity, space))
+      .map((activity) => activity.id);
 
     const activityPromises = activitiesIds.map(async (id) => {
       const response = await services.fetchActivityAPI(id);
@@ -91,16 +86,21 @@ async function getAllSpaceContent(req, res) {
 async function getAllSpaceContentSimplified(req, res) {
   try {
     const { space } = req.params;
-    const { token } = req.body;
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
 
-    const activitiesIds = spaces[space].map((activity) => activity.id);
+    const allActivities = await services.fetchActivitiesAPI(token);
+
+    const activitiesIds = allActivities.activities
+      .filter((activity) => filterProductionActivitiesBySpace(activity, space))
+      .map((activity) => activity.id);
 
     const activityPromises = activitiesIds.map(async (activityId) => {
       const response = await services.fetchActivityAPI(activityId, token);
 
       if(response.error_code && response.error_code === '401013') {
         return response;
-      } 
+      }
 
       const { id, name, state, priority, options } = response;
       return { id, name, state, priority, options };

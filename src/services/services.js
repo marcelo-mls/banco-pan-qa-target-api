@@ -1,11 +1,15 @@
 require('dotenv').config();
 
-const accessToken = process.env.ACCESS_TOKEN;
 const apiKey = process.env.API_KEY;
 const accept = process.env.HEADER_ACCEPT_V2;
 const tenantId = process.env.TENANT_ID;
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const clientScope = process.env.CLIENT_SCOPE;
 
-async function fetchAPI(url, token = accessToken) {
+
+
+async function fetchAPI(url, token) {
   const headers = {
     'Authorization': `Bearer ${token}`,
     'X-Api-Key': apiKey,
@@ -37,9 +41,31 @@ async function fetchOfferAPI(offerId, token) {
   return response;
 }
 
+async function fetchGenerateTokenAPI() {
+  const url = 'https://ims-na1.adobelogin.com/ims/token/v3';
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      'grant_type': 'client_credentials',
+      'client_id': clientId,
+      'client_secret': clientSecret,
+      'scope': clientScope,
+    }),
+  };
+
+  const response = await fetch(url, options);
+
+  return response.json();
+}
+
 module.exports = {
   fetchAPI,
   fetchActivitiesAPI,
   fetchActivityAPI,
   fetchOfferAPI,
+  fetchGenerateTokenAPI,
 };
