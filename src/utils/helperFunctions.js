@@ -1,7 +1,8 @@
 function filterProductionActivitiesBySpace(activity, space) {
   const isApproved = activity.state === 'approved';
   const hasProdInName = (activity.name.toLowerCase().includes('prod') || activity.name.toLowerCase().includes('prd'));
-  const hasTargetSpaceInName = activity.name.includes(space);
+  const spaceNameClean = activity.name.replace(/\s/g, '').toLowerCase();
+  const hasTargetSpaceInName = spaceNameClean.includes(space);
 
   if (isApproved && hasProdInName && hasTargetSpaceInName) {
     const startDateTime = activity.lifetime?.start ? new Date(activity.lifetime.start)?.getTime() : undefined;

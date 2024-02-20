@@ -7,8 +7,6 @@ const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const clientScope = process.env.CLIENT_SCOPE;
 
-
-
 async function fetchAPI(url, token) {
   const headers = {
     'Authorization': `Bearer ${token}`,

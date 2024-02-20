@@ -16,7 +16,9 @@ async function getActivities(req, res) {
 async function getActivity(req, res) {
   try {
     const { activityId } = req.params;
-    const response = await services.fetchActivityAPI(activityId);
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
+    const response = await services.fetchActivityAPI(activityId, token);
 
     res.status(200).json(response);
   } catch (error) {
@@ -28,7 +30,8 @@ async function getActivity(req, res) {
 async function getOffer(req, res) {
   try {
     const { offerId } = req.params;
-    const { token } = req.body;
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
     const response = await services.fetchOfferAPI(offerId, token);
 
     if(response.error_code && response.error_code === '401013') {
