@@ -39,6 +39,15 @@ async function fetchOfferAPI(offerId, token) {
   return response;
 }
 
+async function fetchAudienceAPI(audienceId) {
+  const url = `https://mc.adobe.io/${tenantId}/target/audiences/${audienceId}`;
+  const tokenData = await fetchGenerateTokenAPI();
+  const token = tokenData.access_token;
+  const response = await fetchAPI(url, token);
+
+  return response;
+}
+
 async function fetchGenerateTokenAPI() {
   const url = 'https://ims-na1.adobelogin.com/ims/token/v3';
 
@@ -66,4 +75,5 @@ module.exports = {
   fetchActivityAPI,
   fetchOfferAPI,
   fetchGenerateTokenAPI,
+  fetchAudienceAPI,
 };

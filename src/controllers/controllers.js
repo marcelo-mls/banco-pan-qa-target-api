@@ -1,10 +1,12 @@
 const services = require('../services/services');
-const { filterProductionActivitiesBySpace } = require('../utils/helperFunctions');
+const helpers = require('../utils/helperFunctions');
 
 // RETORNA LISTA DE TODAS ATIVIDADES
 async function getActivities(req, res) {
   try {
-    const response = await services.fetchActivitiesAPI();
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
+    const response = await services.fetchActivitiesAPI(token);
 
     res.status(200).json(response);
   } catch (error) {
@@ -57,7 +59,7 @@ async function getAllSpaceContent(req, res) {
     const allActivities = await services.fetchActivitiesAPI(token);
 
     const activitiesIds = allActivities.activities
-      .filter((activity) => filterProductionActivitiesBySpace(activity, space))
+      .filter((activity) => helpers.filterProductionActivitiesBySpace(activity, space))
       .map((activity) => activity.id);
 
     const activityPromises = activitiesIds.map(async (id) => {
@@ -95,7 +97,7 @@ async function getAllSpaceContentSimplified(req, res) {
     const allActivities = await services.fetchActivitiesAPI(token);
 
     const activitiesIds = allActivities.activities
-      .filter((activity) => filterProductionActivitiesBySpace(activity, space))
+      .filter((activity) => helpers.filterProductionActivitiesBySpace(activity, space))
       .map((activity) => activity.id);
 
     const activityPromises = activitiesIds.map(async (activityId) => {
@@ -105,8 +107,9 @@ async function getAllSpaceContentSimplified(req, res) {
         return response;
       }
 
-      const { id, name, state, priority, options } = response;
-      return { id, name, state, priority, options };
+      const sortedOffers = helpers.sortOffersAsIsAtTarget(response);
+
+      return sortedOffers;
     });
 
     const activitiesResponses = await Promise.all(activityPromises);
@@ -129,6 +132,13 @@ async function getAllSpaceContentSimplified(req, res) {
       const offersResponses = await Promise.all(offersPromises);
       spaceContent.push({ ...activity, options: offersResponses });
     }
+
+    // spaceContent.sort((a, b) => {
+    //   const dateA = Date.parse(a.startsAt);
+    //   const dateB = Date.parse(b.startsAt);
+
+    //   return dateA - dateB;
+    // });
 
     res.status(200).json(spaceContent);
   } catch (error) {

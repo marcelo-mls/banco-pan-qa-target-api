@@ -1,6 +1,6 @@
 const controllers = require('./controllers/controllers'); 
 const express = require('express');
-
+    
 const router = express.Router();
 
 // ROTA PARA PEGAR AS ATIVIDADES
