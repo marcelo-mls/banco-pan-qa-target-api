@@ -133,12 +133,12 @@ async function getAllSpaceContentSimplified(req, res) {
       spaceContent.push({ ...activity, options: offersResponses });
     }
 
-    // spaceContent.sort((a, b) => {
-    //   const dateA = Date.parse(a.startsAt);
-    //   const dateB = Date.parse(b.startsAt);
+    spaceContent.sort((a, b) => {
+      const dateA = Date.parse(a.startsAt === '' ? a.endsAt : a.startsAt);
+      const dateB = Date.parse(b.startsAt === '' ? b.endsAt : b.startsAt);
 
-    //   return dateA - dateB;
-    // });
+      return dateA - dateB;
+    });
 
     res.status(200).json(spaceContent);
   } catch (error) {

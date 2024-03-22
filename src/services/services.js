@@ -1,17 +1,18 @@
 require('dotenv').config();
 
 const apiKey = process.env.API_KEY;
-const accept = process.env.HEADER_ACCEPT_V2;
+const acceptV2 = process.env.HEADER_ACCEPT_V2;
+const acceptV3 = process.env.HEADER_ACCEPT_V3;
 const tenantId = process.env.TENANT_ID;
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const clientScope = process.env.CLIENT_SCOPE;
 
-async function fetchAPI(url, token) {
+async function fetchAPI(url, token, version='v2') {
   const headers = {
     'Authorization': `Bearer ${token}`,
     'X-Api-Key': apiKey,
-    'Accept': accept
+    'Accept': version === 'v3' ? acceptV3 : acceptV2
   };
 
   const response = await fetch(url, { headers });
@@ -43,7 +44,7 @@ async function fetchAudienceAPI(audienceId) {
   const url = `https://mc.adobe.io/${tenantId}/target/audiences/${audienceId}`;
   const tokenData = await fetchGenerateTokenAPI();
   const token = tokenData.access_token;
-  const response = await fetchAPI(url, token);
+  const response = await fetchAPI(url, token, 'v3');
 
   return response;
 }

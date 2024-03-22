@@ -1,4 +1,5 @@
-const controllers = require('./controllers/controllers'); 
+const controllers = require('./controllers/controllers');
+const services = require('./services/services');
 const express = require('express');
     
 const router = express.Router();
@@ -17,5 +18,11 @@ router.get('/space-content/:space', controllers.getAllSpaceContent);
 
 // ROTA PARA COMBINAR TUDO, PORÉM REDUZIDO
 router.get('/space-content/simple/:space', controllers.getAllSpaceContentSimplified);
+
+// ROTA TEMPORÁRIA PARA BUSCAR DADOS DE UMA AUDIÊNCIA
+router.get('/audience/:audienceId', async (req, res) => {
+  const response = await services.fetchAudienceAPI(req.params.audienceId);
+  res.status(200).json(response);
+});
 
 module.exports = router;
