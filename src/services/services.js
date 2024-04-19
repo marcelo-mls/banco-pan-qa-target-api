@@ -19,36 +19,6 @@ async function fetchAPI(url, token, version='v2') {
   return response.json();
 }
 
-async function fetchActivitiesAPI(token) {
-  const url = `https://mc.adobe.io/${tenantId}/target/activities`;
-  const response = await fetchAPI(url, token);
-
-  return response;
-}
-
-async function fetchActivityAPI(activityId, token) {
-  const url = `https://mc.adobe.io/${tenantId}/target/activities/xt/${activityId}`;
-  const response = await fetchAPI(url, token);
-
-  return response;
-}
-
-async function fetchOfferAPI(offerId, token) {
-  const url = `https://mc.adobe.io/${tenantId}/target/offers/json/${offerId}`;
-  const response = await fetchAPI(url, token);
-
-  return response;
-}
-
-async function fetchAudienceAPI(audienceId) {
-  const url = `https://mc.adobe.io/${tenantId}/target/audiences/${audienceId}`;
-  const tokenData = await fetchGenerateTokenAPI();
-  const token = tokenData.access_token;
-  const response = await fetchAPI(url, token, 'v3');
-
-  return response;
-}
-
 async function fetchGenerateTokenAPI() {
   const url = 'https://ims-na1.adobelogin.com/ims/token/v3';
 
@@ -70,11 +40,50 @@ async function fetchGenerateTokenAPI() {
   return response.json();
 }
 
+// ATIVIDADES
+async function fetchActivitiesAPI(token) {
+  const url = `https://mc.adobe.io/${tenantId}/target/activities`;
+  const response = await fetchAPI(url, token);
+
+  return response;
+}
+
+async function fetchActivityAPI(activityId, token) {
+  const url = `https://mc.adobe.io/${tenantId}/target/activities/xt/${activityId}`;
+  const response = await fetchAPI(url, token);
+
+  return response;
+}
+
+// OFERTAS
+async function fetchOfferAPI(offerId, token) {
+  const url = `https://mc.adobe.io/${tenantId}/target/offers/json/${offerId}`;
+  const response = await fetchAPI(url, token);
+
+  return response;
+}
+
+// AUDIÊNCIAS
+async function fetchAudiencesAPI(token) {
+  const url = `https://mc.adobe.io/${tenantId}/target/audiences`;
+  const response = await fetchAPI(url, token, 'v3');
+
+  return response;
+}
+
+async function fetchAudienceAPI(audienceId, token) {
+  const url = `https://mc.adobe.io/${tenantId}/target/audiences/${audienceId}`;
+  const response = await fetchAPI(url, token, 'v3');
+
+  return response;
+}
+
 module.exports = {
   fetchAPI,
+  fetchGenerateTokenAPI,
   fetchActivitiesAPI,
   fetchActivityAPI,
   fetchOfferAPI,
-  fetchGenerateTokenAPI,
+  fetchAudiencesAPI,
   fetchAudienceAPI,
 };

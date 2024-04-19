@@ -17,8 +17,10 @@ function filterProductionActivitiesBySpace(activity, space) {
     if (endDateTime && endDateTime < today) {
       return false;
     }
+
     return true;
   }
+
   return false;
 }
 
@@ -37,12 +39,14 @@ function sortOffersAsIsAtTarget(activity) {
   const indexedOffers = options.map((option) => {
     const experience = experiencesData.find((exp) => exp.optionLocalId === option.optionLocalId);
     option['position'] = experience.position;
-    option['audienceIds'] = experience.audienceIds;
+    option['audienceDetails'] = {};
+    option.audienceDetails['id']  = experience.audienceIds[0] || experience.audienceIds;
     option['experienceName'] = experience.experienceName;
 
+    delete option.offerTemplates;
     return option;
   });
-
+  
   return {
     id,
     name,
@@ -54,7 +58,23 @@ function sortOffersAsIsAtTarget(activity) {
   };
 }
 
+function addAudienceDetails(activity, audienceList) {
+  const optionWithAudience = activity.options.map((option) => {
+    if (option.audienceDetails.id.length === 0) {
+      option.audienceDetails['name'] = 'ALL VISITORS';
+    } else {
+      const audience = audienceList.audiences.find((audience) => audience.id === option.audienceDetails.id);
+      option.audienceDetails['name'] = audience ? audience.name || audience.type : 'AUDIENCE NOT FOUND';
+    }
+    
+    return option;
+  });
+
+  return {...activity, options: optionWithAudience};
+}
+
 module.exports = {
   filterProductionActivitiesBySpace,
+  addAudienceDetails,
   sortOffersAsIsAtTarget,
 };

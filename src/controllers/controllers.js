@@ -28,6 +28,33 @@ async function getActivity(req, res) {
   }
 }
 
+// RETORNA LISTA DE TODAS AUDIÊNCIAS
+async function getAudiences(req, res) {
+  try {
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
+    const response = await services.fetchAudiencesAPI(token);
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+// RETORNA DETALHES DE UMA AUDIÊNCIA
+async function getAudience(req, res) {
+  try {
+    const { audienceId } = req.params;
+    const tokenData = await services.fetchGenerateTokenAPI();
+    const token = tokenData.access_token;
+    const response = await services.fetchAudienceAPI(audienceId, token);
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
 // RETORNA DETALHES DE UMA OFERTA
 async function getOffer(req, res) {
   try {
@@ -87,7 +114,7 @@ async function getAllSpaceContent(req, res) {
   }
 }
 
-// RETORNA OS DETALHES DE UM SPACE (COM ATIVIDADES E OFERTAS) DE FORMA REDUZIDA
+// RETORNA OS DETALHES DE UM SPACE (COM ATIVIDADES E OFERTAS) DE FORMA ENXUTA
 async function getAllSpaceContentSimplified(req, res) {
   try {
     const { space } = req.params;
@@ -95,6 +122,7 @@ async function getAllSpaceContentSimplified(req, res) {
     const token = tokenData.access_token;
 
     const allActivities = await services.fetchActivitiesAPI(token);
+    const allAudiences = await services.fetchAudiencesAPI(token);
 
     const activitiesIds = allActivities.activities
       .filter((activity) => helpers.filterProductionActivitiesBySpace(activity, space))
@@ -108,8 +136,9 @@ async function getAllSpaceContentSimplified(req, res) {
       }
 
       const sortedOffers = helpers.sortOffersAsIsAtTarget(response);
+      const activityWithAudiences = helpers.addAudienceDetails(sortedOffers, allAudiences);
 
-      return sortedOffers;
+      return activityWithAudiences;
     });
 
     const activitiesResponses = await Promise.all(activityPromises);
@@ -126,7 +155,8 @@ async function getAllSpaceContentSimplified(req, res) {
     for (const activity of activitiesResponses) {
       const offersPromises = activity.options.map(async (offer) => {
         const response = await services.fetchOfferAPI(offer.offerId, token);
-        return { ...offer, details: response };
+        const {id, content} = response;
+        return { ...offer, details: {id, content} };
       });
 
       const offersResponses = await Promise.all(offersPromises);
@@ -142,6 +172,7 @@ async function getAllSpaceContentSimplified(req, res) {
 
     res.status(200).json(spaceContent);
   } catch (error) {
+    console.error('500', error);
     return res.status(500).json(error);
   }
 }
@@ -149,6 +180,8 @@ async function getAllSpaceContentSimplified(req, res) {
 module.exports = {
   getActivities,
   getActivity,
+  getAudiences,
+  getAudience,
   getOffer,
   getAllSpaceContent,
   getAllSpaceContentSimplified,
