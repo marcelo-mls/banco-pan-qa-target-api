@@ -29,8 +29,6 @@ async function fetchAdobeAPI(endpointName, token, id=null, version='v2') {
 
   const url = `https://mc.adobe.io/${TENANT_ID}${endpoints[endpointName]}`;
 
-  console.log(url);
-
   const response = await fetch(url, { headers });
   return response.json();
 }
@@ -51,8 +49,6 @@ async function generateTokenAPI() {
   const response = await fetch(url, options);
   const tokenData = await response.json();
   const token = tokenData.access_token;
-
-  console.log('generate token', token);
   
   return token;
 }
