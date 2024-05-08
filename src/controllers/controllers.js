@@ -112,9 +112,11 @@ async function getAllSpaceContentSimplified(req, res) {
   try {
     const { space } = req.params;
     const token = await services.generateTokenAPI();
+    console.log('function token', token);
     const allActivities = await services.fetchAdobeAPI('activities', token);
     const allAudiences = await services.fetchAdobeAPI('audiences', token, null, 'v3');
-
+    console.log(typeof allActivities);
+    console.log(allActivities.activities.length);
     const activitiesIds = allActivities.activities
       .filter((activity) => helpers.filterProductionActivitiesBySpace(activity, space))
       .map((activity) => activity.id);
@@ -158,7 +160,7 @@ async function getAllSpaceContentSimplified(req, res) {
       const dateA = Date.parse(a.startsAt === '' ? a.endsAt : a.startsAt);
       const dateB = Date.parse(b.startsAt === '' ? b.endsAt : b.startsAt);
 
-      return dateA - dateB;
+      return dateA - dateB || (b.priority - a.priority);
     });
 
     res.status(200).json(spaceContent);
