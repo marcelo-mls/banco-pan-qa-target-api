@@ -1,12 +1,11 @@
-const services = require('../services/services');
+const services = require('../services/adobe.services');
 const helpers = require('../utils/helperFunctions');
 
 // RETORNA LISTA DE TODAS ATIVIDADES
 async function getActivities(req, res) {
   try {
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-    const response = await services.fetchActivitiesAPI(token);
+    const token = await services.generateTokenAPI();
+    const response = await services.fetchAdobeAPI('activities', token);
 
     res.status(200).json(response);
   } catch (error) {
@@ -18,9 +17,8 @@ async function getActivities(req, res) {
 async function getActivity(req, res) {
   try {
     const { activityId } = req.params;
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-    const response = await services.fetchActivityAPI(activityId, token);
+    const token = await services.generateTokenAPI();
+    const response = await services.fetchAdobeAPI('activity', token, activityId);
 
     res.status(200).json(response);
   } catch (error) {
@@ -31,9 +29,8 @@ async function getActivity(req, res) {
 // RETORNA LISTA DE TODAS AUDIÊNCIAS
 async function getAudiences(req, res) {
   try {
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-    const response = await services.fetchAudiencesAPI(token);
+    const token = await services.generateTokenAPI();
+    const response = await services.fetchAdobeAPI('audiences', token, null, 'v3');
 
     res.status(200).json(response);
   } catch (error) {
@@ -45,9 +42,8 @@ async function getAudiences(req, res) {
 async function getAudience(req, res) {
   try {
     const { audienceId } = req.params;
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-    const response = await services.fetchAudienceAPI(audienceId, token);
+    const token = await services.generateTokenAPI();
+    const response = await services.fetchAdobeAPI('audience', token, audienceId, 'v3');
 
     res.status(200).json(response);
   } catch (error) {
@@ -59,9 +55,8 @@ async function getAudience(req, res) {
 async function getOffer(req, res) {
   try {
     const { offerId } = req.params;
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-    const response = await services.fetchOfferAPI(offerId, token);
+    const token = await services.generateTokenAPI();
+    const response = await services.fetchAdobeAPI('offer', token, offerId);
 
     if(response.error_code && response.error_code === '401013') {
       return res.status(401).json({
@@ -80,17 +75,15 @@ async function getOffer(req, res) {
 async function getAllSpaceContent(req, res) {
   try {
     const { space } = req.params;
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-
-    const allActivities = await services.fetchActivitiesAPI(token);
+    const token = await services.generateTokenAPI();
+    const allActivities = await services.fetchAdobeAPI('activities', token);
 
     const activitiesIds = allActivities.activities
       .filter((activity) => helpers.filterProductionActivitiesBySpace(activity, space))
       .map((activity) => activity.id);
 
     const activityPromises = activitiesIds.map(async (id) => {
-      const response = await services.fetchActivityAPI(id);
+      const response = await services.fetchAdobeAPI('activity', token, id);
       return response;
     });
 
@@ -100,7 +93,7 @@ async function getAllSpaceContent(req, res) {
 
     for (const activity of activitiesResponses) {
       const offersPromises = activity.options.map(async (offer) => {
-        const response = await services.fetchOfferAPI(offer.offerId);
+        const response = await services.fetchAdobeAPI('offer', token, offer.offerId);
         return { ...offer, details: response };
       });
 
@@ -118,18 +111,16 @@ async function getAllSpaceContent(req, res) {
 async function getAllSpaceContentSimplified(req, res) {
   try {
     const { space } = req.params;
-    const tokenData = await services.fetchGenerateTokenAPI();
-    const token = tokenData.access_token;
-
-    const allActivities = await services.fetchActivitiesAPI(token);
-    const allAudiences = await services.fetchAudiencesAPI(token);
+    const token = await services.generateTokenAPI();
+    const allActivities = await services.fetchAdobeAPI('activities', token);
+    const allAudiences = await services.fetchAdobeAPI('audiences', token, null, 'v3');
 
     const activitiesIds = allActivities.activities
       .filter((activity) => helpers.filterProductionActivitiesBySpace(activity, space))
       .map((activity) => activity.id);
 
     const activityPromises = activitiesIds.map(async (activityId) => {
-      const response = await services.fetchActivityAPI(activityId, token);
+      const response = await services.fetchAdobeAPI('activity', token, activityId);
 
       if(response.error_code && response.error_code === '401013') {
         return response;
@@ -154,7 +145,7 @@ async function getAllSpaceContentSimplified(req, res) {
 
     for (const activity of activitiesResponses) {
       const offersPromises = activity.options.map(async (offer) => {
-        const response = await services.fetchOfferAPI(offer.offerId, token);
+        const response = await services.fetchAdobeAPI('offer', token, offer.offerId);
         const {id, content} = response;
         return { ...offer, details: {id, content} };
       });
