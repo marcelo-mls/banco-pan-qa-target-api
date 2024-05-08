@@ -157,9 +157,8 @@ async function getAllSpaceContentSimplified(req, res) {
     spaceContent.sort((a, b) => {
       const dateA = Date.parse(a.startsAt === '' ? a.endsAt : a.startsAt);
       const dateB = Date.parse(b.startsAt === '' ? b.endsAt : b.startsAt);
-      
-      return (dateA - dateB) || (b.priority - a.priority);
 
+      return dateA - dateB;
     });
 
     res.status(200).json(spaceContent);
