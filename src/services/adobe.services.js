@@ -2,36 +2,11 @@ require('dotenv').config();
 
 const {
   API_KEY,
-  ACCEPT_V2,
-  ACCEPT_V3,
   TENANT_ID,
-  CLIENT_ID,
-  CLIENT_SECRET,
-  API_SCOPE
+  CLIENT_ID, // token
+  CLIENT_SECRET, // token
+  API_SCOPE // token
 } = process.env;
-
-async function fetchAdobeAPI(endpointName, token, id=null, version='v2') {
-  // https://developer.adobe.com/target/administer/admin-api/
-
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'X-Api-Key': API_KEY,
-    'Accept': version === 'v3' ? ACCEPT_V3 : ACCEPT_V2
-  };
-
-  const endpoints = {
-    activity: `/target/activities/xt/${id}`,
-    activities: '/target/activities',
-    offer: `/target/offers/json/${id}`,
-    audience: `/target/audiences/${id}`,
-    audiences: '/target/audiences',
-  };
-
-  const url = `https://mc.adobe.io/${TENANT_ID}${endpoints[endpointName]}`;
-
-  const response = await fetch(url, { headers });
-  return response.json();
-}
 
 async function generateTokenAPI() {
   const options = {
@@ -53,7 +28,43 @@ async function generateTokenAPI() {
   return token;
 }
 
+/**
+ * Faz uma requisição à API do Adobe com base nos parâmetros fornecidos.
+ * @param {string} endpointName - O nome do endpoint da API do Adobe que será chamado.
+ * @param {string} token - O token JWT de autenticação necessário para acessar a API.
+ * @param {string|null} [id=null] - (Opcional) O ID do recurso que você quer buscar. Pode ser nulo.
+ * @param {string|null} [type=null] - (Opcional) O tipo/status do recurso ou operação que está sendo solicitada. Pode ser nulo.
+ */
+
+async function fetchAdobeAPI(endpointName, token, id=null, type=null) {
+  // https://developer.adobe.com/target/administer/admin-api/
+  // https://experienceleague.adobe.com/pt-br/docs/target-dev/developer/api/target-api-overview
+  // https://developers.adobetarget.com/api/#admin-postman-collection
+  
+  const version = ['audience', 'audiences'].includes(endpointName) ? 'v3' : 'v2';
+
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'X-Api-Key': API_KEY,
+    'Accept': `application/vnd.adobe.target.${version}+json`
+  };
+
+  const endpoints = {
+    activity: `/target/activities/${type}/${id}`,
+    activities: id ? `/target/activities/?id=${id}` : `/target/activities/?state=${type}`,
+    offer: `/target/offers/${type}/${id}`,
+    offers: id ? `/target/offers/?id=${id}` : '/target/offers/',
+    audience: `/target/audiences/${id}`,
+    audiences: '/target/audiences',
+  };
+
+  const url = `https://mc.adobe.io/${TENANT_ID}${endpoints[endpointName]}`;
+
+  const response = await fetch(url, { headers });
+  return response.json();
+}
+
 module.exports = {
-  fetchAdobeAPI,
   generateTokenAPI,
+  fetchAdobeAPI,
 };

@@ -32,8 +32,8 @@ Importante lembrar de criar um arquivo `.env` e preencher com as variáveis de a
 > Lembre-se de informar os parâmetros adequados
 
 ### Atividades
-- `GET`: /activities/
->Retorna uma lista de todas as atividades.
+- `GET`: /activities/`?state=[approved|deactivated|paused|saved|deleted]`
+>Retorna uma lista de todas as atividades. Aceita parâmetro opcional para filtrar atividades por status
 - `GET`: /activities/:activityId
 >Retorna os detalhes de uma atividade específica com base no seu ID.
 
@@ -44,11 +44,13 @@ Importante lembrar de criar um arquivo `.env` e preencher com as variáveis de a
 >Retorna os detalhes de uma audiência específica com base no seu ID.
 
 ### Ofertas
+- `GET`: /offers/
+>Retorna uma lista de todas as ofertas.
 - `GET`: /offers/:offerId
 >Retorna os detalhes de uma oferta específica com base no seu ID.
 
 ### Espaços
-- `GET`: /space/clean/:spaceName
+- `GET`: /space/:spaceName
 >Retorna todo o conteúdo de um espaço, incluindo atividades, ofertas e audiências.
 
 ---

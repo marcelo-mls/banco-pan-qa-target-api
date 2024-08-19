@@ -1,21 +1,21 @@
-const controllers = require('./controllers/controllers');
+const controller = require('./controllers/index');
+
 const express = require('express');
-    
 const router = express.Router();
 
 // ROTAS PARA PEGAR ATIVIDADES
-router.get('/activities/', controllers.getActivities);
-router.get('/activities/:activityId', controllers.getActivity);
+router.get('/activities/', controller.getActivities);
+router.get('/activities/:activityId', controller.getActivity);
 
 // ROTAS PARA PEGAR AUDIÊNCIAS
-router.get('/audiences/', controllers.getAudiences);
-router.get('/audiences/:audienceId', controllers.getAudience);
+router.get('/audiences/', controller.getAudiences);
+router.get('/audiences/:audienceId', controller.getAudience);
 
-// ROTA PARA PEGAR UMA OFERTA
-router.get('/offers/:offerId', controllers.getOffer);
+// ROTA PARA PEGAR OFERTAs
+router.get('/offers/', controller.getOffers);
+router.get('/offers/:offerId', controller.getOffer);
 
 // ROTA PARA COMBINAR TUDO E MONTAR UM ESPAÇO
-router.get('/space/:space', controllers.getAllSpaceContent);
-router.get('/space/clean/:space', controllers.getAllSpaceContentSimplified);
+router.get('/space/:space', controller.getAllSpaceContent);
 
 module.exports = router;
