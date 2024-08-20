@@ -114,9 +114,11 @@ function buildCompleteActivity(activityDetails, activityOverview, audienceList) 
     );
 
     if (correspondingExperience) {
+      const audienceIds = activityOverview.type === 'ab' ? correspondingExperience.mbox.audienceIds : correspondingExperience.audienceIds;
+
       return { 
         ...option,
-        audienceDetails: getAudienceDetails(correspondingExperience.audienceIds, audienceList),
+        audienceDetails: getAudienceDetails(audienceIds, audienceList),
         ordination: {
           priority: priority, 
           position: correspondingExperience.position,
