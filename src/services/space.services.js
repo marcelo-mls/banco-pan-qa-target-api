@@ -22,8 +22,8 @@ function getSchedulingAccordingToInterface(activity) {
   */
  
   let scheduling = '';
-  const start = activity.lifetime?.start || activity?.startsAt;
-  const end = activity.lifetime?.end || activity?.endsAt;
+  const start = activity?.startsAt || activity.lifetime?.start;
+  const end = activity?.endsAt || activity.lifetime?.end;
 
   const startsDate = start ? new Date(start) : null;
   const endsDate = end ? new Date(end) : null;
