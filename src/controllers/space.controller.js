@@ -12,6 +12,13 @@ async function getAllSpaceContent(req, res) {
     const [allApprovedActivities, allAudiences, allOffers] = await services.getAllAdobeListingAPIs(token);
     const requestedActivities = services.getRequestedActivities(allApprovedActivities, requestedSpace);
 
+    if (requestedActivities.length === 0) {
+      return res.status(404).json({
+        message: '🕵️‍♂️ Procuramos, procuramos e... nada! Parece que não há experiências ativas neste espaço.',
+        data: []
+      });
+    }
+
     const activitiesPromises = requestedActivities.map(async (activityOverview) => {
       const activityDetails = await services.fetchAdobeAPI('activity', token, activityOverview.id, activityOverview.type);
 
